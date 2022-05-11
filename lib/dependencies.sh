@@ -226,37 +226,42 @@ should_use_npm_ci() {
 
 npm_node_modules() {
   local build_dir=${1:-}
+  local env_dir=${2:-}
   local production=${NPM_CONFIG_PRODUCTION:-false}
 
-  if [ -e "$build_dir/package.json" ]; then
-    cd "$build_dir" || return
+  if [ -f $env_dir/PROJECT_PATH ]; then
+    if [ -e "$build_dir/$PROJECT_PATH/package.json" ]; then
+      cd "$build_dir/$PROJECT_PATH" || return
 
-    if [[ "$(should_use_npm_ci "$build_dir")" == "true" ]] && [[ "$USE_NPM_INSTALL" != "true" ]]; then
-      meta_set "use-npm-ci" "true"
-      echo "Installing node modules"
-      monitor "npm-install" npm ci --production="$production" --unsafe-perm --userconfig "$build_dir/.npmrc" 2>&1
-    else
-      meta_set "use-npm-ci" "false"
-      if [ -e "$build_dir/package-lock.json" ]; then
-        echo "Installing node modules (package.json + package-lock)"
-      elif [ -e "$build_dir/npm-shrinkwrap.json" ]; then
-        echo "Installing node modules (package.json + shrinkwrap)"
+      if [[ "$(should_use_npm_ci "$build_dir/$PROJECT_PATH")" == "true" ]] && [[ "$USE_NPM_INSTALL" != "true" ]]; then
+        meta_set "use-npm-ci" "true"
+        echo "Installing node modules"
+        monitor "npm-install" npm ci --production="$production" --unsafe-perm --userconfig "$build_dir/$PROJECT_PATH/.npmrc" 2>&1
       else
-        echo "Installing node modules (package.json)"
+        meta_set "use-npm-ci" "false"
+        if [ -e "$build_dir/$PROJECT_PATH/package-lock.json" ]; then
+          echo "Installing node modules (package.json + package-lock)"
+        elif [ -e "$build_dir/$PROJECT_PATH/npm-shrinkwrap.json" ]; then
+          echo "Installing node modules (package.json + shrinkwrap)"
+        else
+          echo "Installing node modules (package.json)"
+        fi
+        monitor "npm-install" npm install --production="$production" --unsafe-perm --userconfig "$build_dir/$PROJECT_PATH/.npmrc" 2>&1
       fi
-      monitor "npm-install" npm install --production="$production" --unsafe-perm --userconfig "$build_dir/.npmrc" 2>&1
+    else
+      echo "Skipping (no package.json)"
     fi
-  else
-    echo "Skipping (no package.json)"
   fi
+  echo "PROJECT_PATH is undefined"
+  exit 1
 }
 
 npm_rebuild() {
   local build_dir=${1:-}
   local production=${NPM_CONFIG_PRODUCTION:-false}
 
-  if [ -e "$build_dir/package.json" ]; then
-    cd "$build_dir" || return
+  if [ -e "$build_dir/$PROJECT_PATH/package.json" ]; then
+    cd "$build_dir/$PROJECT_PATH" || return
     echo "Rebuilding any native modules"
     npm rebuild 2>&1
     if [ -e "$build_dir/npm-shrinkwrap.json" ]; then

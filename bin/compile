@@ -324,7 +324,7 @@ build_dependencies() {
     echo "Prebuild detected (node_modules already exists)"
     npm_rebuild "$BUILD_DIR"
   else
-    npm_node_modules "$BUILD_DIR"
+    npm_node_modules "$BUILD_DIR" "$ENV_DIR"
   fi
 
   mtime "modules.time.cache.$cache_status" "${start}"
