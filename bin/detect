@@ -19,7 +19,7 @@ error() {
 	exit 1
 }
 
-echo "bypass test"
+echo "detect bypassed, todo retrive PROJECT_PATH to validate path $PROJECT_PATH"
 exit 0
 
 
