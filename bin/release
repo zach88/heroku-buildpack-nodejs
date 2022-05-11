@@ -4,5 +4,5 @@
 cat << EOF
 addons: []
 default_process_types:
-  web: ls -la && cd ./api && npm start
+  web: cd ./api && ls -la && npm start
 EOF
