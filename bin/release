@@ -4,5 +4,5 @@
 cat << EOF
 addons: []
 default_process_types:
-  web: npm --prefix ./\$PROJECT_PATH run start
+  web: cd ./\$PROJECT_PATH && npm run start
 EOF
