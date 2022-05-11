@@ -228,12 +228,14 @@ npm_node_modules() {
   local build_dir=${1:-}
   local production=${NPM_CONFIG_PRODUCTION:-false}
 
+  echo "Try to installing node modules from $build_dir/package.json"
   if [ -e "$build_dir/package.json" ]; then
     cd "$build_dir" || return
 
     if [[ "$(should_use_npm_ci "$build_dir")" == "true" ]] && [[ "$USE_NPM_INSTALL" != "true" ]]; then
       meta_set "use-npm-ci" "true"
-      echo "Installing node modules"
+      echo "Installing node modules $build_dir"
+      echo "current path $(cd pwd)"
       monitor "npm-install" npm ci --production="$production" --unsafe-perm --userconfig "$build_dir/.npmrc" 2>&1
     else
       meta_set "use-npm-ci" "false"
